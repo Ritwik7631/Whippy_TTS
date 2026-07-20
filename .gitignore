@@ -1,0 +1,11 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+
+voices/*.wav
+outputs/
+benchmark/results/
+
+.vscode/
+.idea/
