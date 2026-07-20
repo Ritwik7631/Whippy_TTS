@@ -1,0 +1,24 @@
+[
+  {
+    "name": "turbo",
+    "model_type": "turbo",
+    "subjective_quality": 70,
+    "notes": "Fast, but less natural"
+  },
+  {
+    "name": "original_default",
+    "model_type": "original",
+    "exaggeration": 0.5,
+    "cfg_weight": 0.5,
+    "subjective_quality": 78,
+    "notes": "Better than Turbo"
+  },
+  {
+    "name": "original_deliberate",
+    "model_type": "original",
+    "exaggeration": 0.45,
+    "cfg_weight": 0.3,
+    "subjective_quality": 84,
+    "notes": "Best pacing and naturalness"
+  }
+]

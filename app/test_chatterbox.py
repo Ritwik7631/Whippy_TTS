@@ -2,39 +2,54 @@ from pathlib import Path
 
 import torch
 import torchaudio as ta
-from chatterbox.tts_turbo import ChatterboxTurboTTS
+from chatterbox.tts import ChatterboxTTS
+
+from app.config import load_voice_config
 
 
-REFERENCE_AUDIO = Path("voices/reference.wav")
 OUTPUT_AUDIO = Path("outputs/chatterbox-test.wav")
 
 
 def main() -> None:
+    config = load_voice_config()
+
+    reference_audio = Path(
+        config["reference_audio_path"]
+    )
+
+    generation_config = config["generation"]
+
     if not torch.cuda.is_available():
-        raise RuntimeError(
-            "No CUDA GPU detected. Run this script in Google Colab "
-            "with a GPU runtime enabled."
-        )
+        raise RuntimeError("CUDA GPU is required.")
 
-    if not REFERENCE_AUDIO.exists():
+    if not reference_audio.exists():
         raise FileNotFoundError(
-            f"Reference audio not found: {REFERENCE_AUDIO}"
+            f"Reference audio not found: {reference_audio}"
         )
 
-    OUTPUT_AUDIO.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_AUDIO.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
-    print("Loading Chatterbox Turbo...")
-    model = ChatterboxTurboTTS.from_pretrained(device="cuda")
+    print("Loading Chatterbox...", flush=True)
+
+    model = ChatterboxTTS.from_pretrained(
+        device="cuda"
+    )
 
     text = (
         "Hi, this is the Whippy AI Recruiter. "
         "Is now a good time to complete your interview?"
     )
 
-    print("Generating audio...")
+    print("Generating audio...", flush=True)
+
     waveform = model.generate(
         text,
-        audio_prompt_path=str(REFERENCE_AUDIO),
+        audio_prompt_path=str(reference_audio),
+        exaggeration=generation_config["exaggeration"],
+        cfg_weight=generation_config["cfg_weight"],
     )
 
     ta.save(
@@ -43,8 +58,7 @@ def main() -> None:
         model.sr,
     )
 
-    print(f"Saved audio to {OUTPUT_AUDIO}")
-    print(f"Sample rate: {model.sr}")
+    print(f"Saved audio to {OUTPUT_AUDIO}", flush=True)
 
 
 if __name__ == "__main__":

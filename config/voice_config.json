@@ -1,0 +1,14 @@
+{
+  "model_type": "original",
+  "reference_audio_path": "voices/reference.wav",
+  "sample_rate": 24000,
+  "generation": {
+    "exaggeration": 0.45,
+    "cfg_weight": 0.3
+  },
+  "notes": {
+    "purpose": "Whippy AI Recruiter voice",
+    "selected_because": "Best naturalness and pacing in manual listening test",
+    "reference_description": "Clean conversational recruiter-style clip"
+  }
+}
