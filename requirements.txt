@@ -3,3 +3,5 @@ fastapi
 uvicorn[standard]
 python-dotenv
 python-multipart
+setuptools==70.2.0
+resemble-perth==1.0.1
