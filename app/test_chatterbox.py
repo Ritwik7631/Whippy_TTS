@@ -4,19 +4,16 @@ import torch
 import torchaudio as ta
 from chatterbox.tts import ChatterboxTTS
 
-from app.config import load_voice_config
+from app.config import load_voice_config, resolve_repo_path
 
 
-OUTPUT_AUDIO = Path("outputs/chatterbox-test.wav")
+OUTPUT_AUDIO = resolve_repo_path("outputs/chatterbox-test.wav")
 
 
 def main() -> None:
     config = load_voice_config()
 
-    reference_audio = Path(
-        config["reference_audio_path"]
-    )
-
+    reference_audio = resolve_repo_path(config["reference_audio_path"])
     generation_config = config["generation"]
 
     if not torch.cuda.is_available():
@@ -58,7 +55,7 @@ def main() -> None:
         model.sr,
     )
 
-    print(f"Saved audio to {OUTPUT_AUDIO}", flush=True)
+    print(f"Saved audio to {OUTPUT_AUDIO.resolve()}", flush=True)
 
 
 if __name__ == "__main__":

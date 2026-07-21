@@ -2,8 +2,19 @@ import json
 from pathlib import Path
 from typing import Any
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+CONFIG_PATH = REPO_ROOT / "config" / "voice_config.json"
 
-CONFIG_PATH = Path("config/voice_config.json")
+
+def get_repo_root() -> Path:
+    return REPO_ROOT
+
+
+def resolve_repo_path(relative_path: str | Path) -> Path:
+    path = Path(relative_path)
+    if path.is_absolute():
+        return path
+    return REPO_ROOT / path
 
 
 def load_voice_config() -> dict[str, Any]:
