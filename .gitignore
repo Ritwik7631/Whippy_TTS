@@ -6,6 +6,7 @@ __pycache__/
 voices/*.wav
 outputs/
 benchmark/results/
+tunnel.log
 
 .vscode/
 .idea/
