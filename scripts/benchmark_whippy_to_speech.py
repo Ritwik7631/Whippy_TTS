@@ -78,6 +78,19 @@ def _word_count(text: str) -> int:
     return len(text.split())
 
 
+def _ensure_float32_reference_path(reference_audio: Path) -> str:
+    """Return a float32 reference clip path for Chatterbox Turbo on Colab."""
+    prepared_path = resolve_repo_path("outputs/_reference_float32.wav")
+    prepared_path.parent.mkdir(parents=True, exist_ok=True)
+
+    waveform, sample_rate = ta.load(str(reference_audio))
+    if waveform.dtype != torch.float32:
+        waveform = waveform.to(torch.float32)
+
+    ta.save(str(prepared_path), waveform, sample_rate)
+    return str(prepared_path)
+
+
 def _call_whippy(
     client: WhippyClient,
     prompt: str,
@@ -103,7 +116,7 @@ def _benchmark_model(
     model_name: str,
     model_type: str,
     response_text: str,
-    reference_audio: Path,
+    reference_audio_path: str,
     generation_config: dict[str, Any],
     output_path: Path,
     whippy_latency_seconds: float,
@@ -116,7 +129,7 @@ def _benchmark_model(
         generation_started_at = time.perf_counter()
         waveform = model.generate(
             response_text,
-            audio_prompt_path=str(reference_audio),
+            audio_prompt_path=reference_audio_path,
             exaggeration=generation_config["exaggeration"],
             cfg_weight=generation_config["cfg_weight"],
         )
@@ -128,7 +141,7 @@ def _benchmark_model(
         generation_started_at = time.perf_counter()
         waveform = model.generate(
             response_text,
-            audio_prompt_path=str(reference_audio),
+            audio_prompt_path=reference_audio_path,
         )
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
@@ -194,21 +207,25 @@ def run_benchmark(
 
     client = WhippyClient(whippy_config)
     response_text, whippy_latency_seconds = _call_whippy(client, prompt)
+    reference_audio_path = _ensure_float32_reference_path(reference_audio)
 
     original_result = _benchmark_model(
         model_name="original",
         model_type="original",
         response_text=response_text,
-        reference_audio=reference_audio,
+        reference_audio_path=reference_audio_path,
         generation_config=generation_config,
         output_path=OUTPUT_ORIGINAL,
         whippy_latency_seconds=whippy_latency_seconds,
     )
+
+    torch.cuda.empty_cache()
+
     turbo_result = _benchmark_model(
         model_name="turbo",
         model_type="turbo",
         response_text=response_text,
-        reference_audio=reference_audio,
+        reference_audio_path=reference_audio_path,
         generation_config=generation_config,
         output_path=OUTPUT_TURBO,
         whippy_latency_seconds=whippy_latency_seconds,
